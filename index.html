@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+
+    <style>
+      body {
+        font-size: 62.5%;
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+        overflow-y: hidden;
+        background-image: linear-gradient(to bottom, #292929 0%, black 100%);
+        direction: rtl;
+      }
+
+      .container {
+        width: 600px;
+        background-image: linear-gradient(
+          -180deg,
+          rgba(255, 255, 255, 0.12) 0%,
+          rgba(200, 200, 200, 0.1) 100%
+        );
+        box-shadow: 0 0 5px black;
+        backdrop-filter: blur(10px);
+        padding: 20px;
+        color: white;
+        outline: 10px solid rgba(255, 255, 255, 0.1);
+        border: 6px groove #65659c;
+      }
+
+      .area {
+        display: flex;
+        gap: 50px;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .area > div {
+        font-size: 16px;
+        text-align: center;
+        display: flex;
+        flex-direction: column;
+        gap: 25px;
+      }
+
+      .form-control {
+        padding: 5px 10px;
+        width: 250px;
+        background-color: transparent;
+        border: none;
+        border-bottom: 1px solid gray;
+        color: white;
+        font-size: 16px;
+      }
+
+      .form-control:focus {
+        outline: none;
+        border-bottom: 1px solid white;
+      }
+
+      .calc-btn {
+        width: 180px;
+        height: 40px;
+        margin-top: 50px;
+        border-radius: 50px;
+        background: linear-gradient(#7676b7, #3b3b5a);
+        border: 1px solid rgba(31, 31, 47, 0.4);
+        color: white;
+        cursor: pointer;
+        box-shadow: 0 2px 2px rgba(0, 0, 0, 0.1);
+        transition: 0.2s;
+      }
+      .calc-btn:hover {
+        background: linear-gradient(#6d6da8, #3b3b5a);
+        transform: translateY(1px);
+        box-shadow: initial;
+      }
+
+      .mt-30 {
+        margin-top: 30px;
+      }
+
+      .flex {
+        display: flex;
+      }
+
+      .center {
+        justify-content: center;
+      }
+
+      .between {
+        justify-content: space-between;
+      }
+
+      .blob {
+        width: 20px;
+        height: 20px;
+        border-radius: 50%;
+        box-shadow: inset 0px 2px 15px -5px #efefef,
+          inset 0px 8px 18px -5px #8486fc, 0px 0px 15px -8px #e879f9;
+        position: absolute;
+        left: 10px;
+        bottom: -50px;
+        z-index: -1;
+        animation: move-to-top linear forwards;
+      }
+
+      .badge {
+        font-size: 16px;
+        width: max-content;
+        padding: 5px 15px;
+        box-shadow: inset 0 0 25px #66669c;
+        background: linear-gradient(rgb(67, 67, 67), rgba(50, 50, 50));
+        border: 1px solid rgb(51, 51, 51);
+        border-radius: 5px;
+        margin-block: 12px;
+        cursor: pointer;
+      }
+
+      .result-label {
+        text-align: center;
+        margin-top: 20px;
+        padding-top: 20px;
+        border-top: 1px solid gray;
+      }
+
+      .info {
+        font-size: 16px;
+        text-align: center;
+        position: relative;
+        display: inline-block;
+        background: linear-gradient(rgb(79, 79, 79), rgba(50, 50, 50));
+        padding: 5px 15px;
+        border-radius: 5px;
+        margin-bottom: -15px;
+
+        box-shadow: inset 0 0 25px #66669c;
+      }
+
+      .line {
+        height: 20px;
+        width: 2px;
+        background-color: gray;
+        display: block;
+        position: relative;
+        margin-top: 10px;
+        margin-inline: auto;
+        border-radius: 10px;
+      }
+
+      .line-indent {
+        position: absolute;
+        top: 100%;
+        width: 220px;
+        height: 2px;
+        border-radius: 10px;
+        background-color: gray;
+      }
+
+      .line-indent.after {
+        left: 0;
+      }
+
+      .line-indent.before {
+        right: 0;
+      }
+
+      .line-indent::before {
+        content: "";
+        top: 0;
+        height: 20px;
+        width: 2px;
+        background-color: gray;
+        position: absolute;
+        border-radius: 10px;
+      }
+
+      .line-indent.before::before {
+        left: 0;
+      }
+
+      .line-indent.after::before {
+        right: 0;
+      }
+
+      .notification {
+        position: fixed;
+        right: 10px;
+        bottom: 10px;
+        background-color: #66669c;
+        padding-inline: 65px;
+        border-radius: 5px;
+        font-size: 16px;
+        font-weight: bold;
+        color: white;
+        opacity: 1;
+        transition: .2s;
+      }
+
+      .notification.hide {
+        opacity: 0;
+      }
+
+      @keyframes move-to-top {
+        from {
+          bottom: -50px;
+        }
+        60%,
+        to {
+          bottom: calc(100% + 10px);
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="area">
+        <div>
+          <p>دسکتاپ (1400px)</p>
+          <input
+            class="form-control"
+            placeholder="سایز دسکتاپ"
+            id="desk-input"
+            onkeyup="e=>checkNumber(e)"
+          />
+        </div>
+        <div>
+          <p>موبایل (400px)</p>
+          <input
+            class="form-control"
+            placeholder="سایز موبایل"
+            id="mobile-input"
+            onkeyup="checkNumber"
+          />
+        </div>
+      </div>
+      <div class="flex center">
+        <button onclick="calc()" class="calc-btn">محاسبه</button>
+      </div>
+
+      <div class="mt-30">
+        <p class="result-label">
+          <span class="info"> مقدار ریسپانسیو</span>
+
+          <span class="line">
+            <span class="line-indent before"></span>
+            <span class="line-indent after"></span>
+          </span>
+        </p>
+        <div class="flex between">
+          <p class="badge" id="rem-badge" onclick="copy('rem')">
+            ------------------------
+          </p>
+          <p class="badge" id="px-badge" onclick="copy('px')">
+            ------------------------
+          </p>
+        </div>
+      </div>
+    </div>
+    <div class="notification hide" id="notif">
+      <p>کپی شد</p>
+    </div>
+
+    <script>
+      const checkNumber = (e) => {
+        let text = "";
+        let inputValue = e.target.value;
+        for (let i = 0; i < inputValue.length; i++) {
+          if (inputValue[i] >= "0" && inputValue[i] <= "9")
+            text += inputValue[i];
+        }
+
+        e.target.value = text;
+      };
+
+      const createBlob = (index, counter) => {
+        const div = document.createElement("div");
+        div.className = `blob blob-${counter}`;
+        const size = Math.random() * 30 + 20;
+        div.style.width = size + "px";
+        div.style.height = size + "px";
+        div.style.animationDuration = size / 6 + 10 + "s";
+        div.style.left = Math.random() * 100 + "%";
+        div.style.animationDelay = Math.random() * 10 + "s";
+        document.body.appendChild(div);
+      };
+
+      const runer = () => {
+        let counter = 0;
+        setInterval(() => {
+          counter++;
+          for (let i = 0; i < 5; i++) {
+            createBlob(i, counter);
+          }
+
+          const oldBlobs = document.querySelectorAll(`.blob-${counter - 15}`);
+          oldBlobs.forEach((item) => document.body.removeChild(item));
+        }, 2000);
+      };
+
+      document.addEventListener("DOMContentLoaded", runer);
+
+      const copy = (target) => {
+        let text = target == "rem" ? calcRemValue() : calcPxValue();
+        copyTextToClipboard(text);
+      };
+
+      function fallbackCopyTextToClipboard(text) {
+        var textArea = document.createElement("textarea");
+        textArea.value = text;
+
+        // Avoid scrolling to bottom
+        textArea.style.top = "0";
+        textArea.style.left = "0";
+        textArea.style.position = "fixed";
+
+        document.body.appendChild(textArea);
+        textArea.focus();
+        textArea.select();
+
+        try {
+          var successful = document.execCommand("copy");
+
+        } catch (err) {
+          console.error("Fallback: Oops, unable to copy", err);
+        }
+
+        document.body.removeChild(textArea);
+      }
+      function copyTextToClipboard(text) {
+        if (!navigator.clipboard) {
+          fallbackCopyTextToClipboard(text);
+          return;
+        }
+        navigator.clipboard.writeText(text).then(
+          () =>           successNotification(),
+          function (err) {
+            console.error("Async: Could not copy text: ", err);
+          }
+        );
+      }
+
+      const notifElement = document.getElementById("notif");
+      const successNotification = () => {
+        notifElement.classList.remove("hide");
+
+        setTimeout(() => {
+          notifElement.classList.add("hide");
+        }, 1000);
+      };
+
+      const mobileInput = document.getElementById("mobile-input");
+      const deskInput = document.getElementById("desk-input");
+
+      mobileInput.addEventListener("keyup", (e) => {
+        checkNumber(e);
+      });
+      deskInput.addEventListener("keyup", (e) => {
+        checkNumber(e);
+      });
+
+      const remBadge = document.getElementById("rem-badge");
+      const pxBadge = document.getElementById("px-badge");
+
+      const calc = () => {
+        remBadge.innerHTML = calcRemValue();
+        pxBadge.innerHTML = calcPxValue();
+      };
+
+      const calcRemValue = () => {
+        let mobileSize = Number.parseInt(mobileInput.value);
+        let deskSize = Number.parseInt(deskInput.value);
+
+        if (mobileSize > deskSize) {
+          const temp = mobileSize;
+          mobileSize = deskSize;
+          deskSize = temp;
+        }
+
+        const vwResult = ((deskSize - mobileSize) * 0.1).toFixed(1);
+        const pxResult = (mobileSize - vwResult * 4).toFixed(1);
+        const remResult = (pxResult / 10).toFixed(2);
+
+        return `calc(${vwResult}vw + ${remResult}rem)`;
+      };
+
+      const calcPxValue = () => {
+        let mobileSize = Number.parseInt(mobileInput.value);
+        let deskSize = Number.parseInt(deskInput.value);
+
+        if (mobileSize > deskSize) {
+          const temp = mobileSize;
+          mobileSize = deskSize;
+          deskSize = temp;
+        }
+
+        const vwResult = ((deskSize - mobileSize) * 0.1).toFixed(1);
+        const pxResult = (mobileSize - vwResult * 4).toFixed(1);
+
+        return `calc(${vwResult}vw + ${pxResult}px)`;
+      };
+    </script>
+  </body>
+</html>
